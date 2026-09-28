@@ -1,0 +1,15 @@
+# Build artifacts
+*.obj
+*.exe
+*.o
+*.dll
+
+# Code::Blocks / MinGW build output
+*.cbp
+bin/
+debug/
+release/
+
+# macOS archive metadata
+__MACOSX/
+.DS_Store

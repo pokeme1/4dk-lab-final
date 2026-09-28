@@ -87,10 +87,19 @@ output_results(Simulation_Run_Ptr simulation_run)
   printf("Transmitted packet count  = %ld (Service Fraction = %.5f)\n",
 	 data->number_of_packets_processed, xmtted_fraction);
 
-  printf("Arrival rate = %.3f packets/second \n", (double) PACKET_ARRIVAL_RATE);
+  printf("Arrival rate = %.3f packets/second \n", data->arrival_rate);
 
   printf("Mean Delay (msec) = %.2f \n",
 	 1e3*data->accumulated_delay/data->number_of_packets_processed);
+
+  FILE *results_file = fopen("results.csv", "a");
+  if (results_file != NULL) {
+    fprintf(results_file, "%.3f,%u,%.9f\n",
+            data->arrival_rate,
+            data->random_seed,
+            1e3 * data->accumulated_delay / data->number_of_packets_processed);
+    fclose(results_file);
+  }
 
   printf("\n");
 }

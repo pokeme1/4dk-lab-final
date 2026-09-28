@@ -44,11 +44,11 @@
  * event. When each run is finished, output is printed on the terminal.
  */
 
-int
-main(void)
+int main(void)
 {
   Simulation_Run_Ptr simulation_run;
   Simulation_Run_Data data;
+  FILE *results_file;
 
   /*
    * Declare and initialize our random number generator seeds defined in
@@ -56,15 +56,28 @@ main(void)
    */
 
   unsigned RANDOM_SEEDS[] = {RANDOM_SEED_LIST, 0};
+  double ARRIVAL_RATES[] = {ARRIVAL_RATE_LIST, 0};
   unsigned random_seed;
+  double arrival_rate;
+  int rate_index = 0;
   int j=0;
+
+  results_file = fopen("results.csv", "w");
+  if (results_file == NULL) {
+    perror("Could not create results.csv");
+    return 1;
+  }
+  fprintf(results_file, "arrival_rate,seed,mean_delay_ms\n");
+  fclose(results_file);
 
   /* 
    * Loop for each random number generator seed, doing a separate
    * simulation_run run for each.
    */
 
-  while ((random_seed = RANDOM_SEEDS[j++]) != 0) {
+  while ((arrival_rate = ARRIVAL_RATES[rate_index++]) != 0) {
+    j = 0;
+    while ((random_seed = RANDOM_SEEDS[j++]) != 0) {
 
     simulation_run = simulation_run_new(); /* Create a new simulation run. */
 
@@ -82,6 +95,7 @@ main(void)
     data.arrival_count = 0;
     data.number_of_packets_processed = 0;
     data.accumulated_delay = 0.0;
+    data.arrival_rate = arrival_rate;
     data.random_seed = random_seed;
  
     /* 
@@ -118,6 +132,7 @@ main(void)
 
     output_results(simulation_run);
     cleanup_memory(simulation_run);
+    }
   }
 
   getchar();   /* Pause before finishing. */

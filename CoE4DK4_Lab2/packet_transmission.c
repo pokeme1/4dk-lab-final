@@ -45,7 +45,7 @@ schedule_end_packet_transmission_event(Simulation_Run_Ptr simulation_run,
 {
   Event event;
 
-  event.description = "Packet Xmt End";
+  snprintf(event.description, sizeof(event.description), "%s", "Packet Xmt End");
   event.function = end_packet_transmission_event;
   event.attachment = (void *) link;
 

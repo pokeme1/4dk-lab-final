@@ -44,7 +44,7 @@ schedule_packet_arrival_event(Simulation_Run_Ptr simulation_run,
 {
   Event event;
 
-  event.description = "Packet Arrival";
+  snprintf(event.description, sizeof(event.description), "%s", "Packet Arrival");
   event.function = packet_arrival_event;
   event.attachment = (void *) NULL;
 
@@ -65,6 +65,8 @@ packet_arrival_event(Simulation_Run_Ptr simulation_run, void * ptr)
 {
   Simulation_Run_Data_Ptr data;
   Packet_Ptr new_packet;
+
+  (void)ptr;
 
   data = (Simulation_Run_Data_Ptr) simulation_run_data(simulation_run);
   data->arrival_count++;
@@ -92,7 +94,7 @@ packet_arrival_event(Simulation_Run_Ptr simulation_run, void * ptr)
 
   schedule_packet_arrival_event(simulation_run,
 			simulation_run_get_time(simulation_run) +
-			exponential_generator((double) 1/PACKET_ARRIVAL_RATE));
+      exponential_generator(1.0 / data->arrival_rate));
 }
 
 
