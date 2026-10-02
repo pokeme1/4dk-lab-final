@@ -66,6 +66,7 @@ end_packet_transmission_event(Simulation_Run_Ptr simulation_run, void * link)
 {
   Simulation_Run_Data_Ptr data;
   Packet_Ptr this_packet, next_packet;
+  double this_delay;
 
   TRACE(printf("End Of Packet.\n"););
 
@@ -79,9 +80,12 @@ end_packet_transmission_event(Simulation_Run_Ptr simulation_run, void * link)
 
   /* Collect statistics. */
   data->number_of_packets_processed++;
-  data->accumulated_delay += simulation_run_get_time(simulation_run) - 
-    this_packet->arrive_time;
+  this_delay = simulation_run_get_time(simulation_run) - this_packet->arrive_time;
+  data->accumulated_delay += this_delay;
 
+  if (this_delay > DELAY_THRESHOLD) {
+    data->packets_over_threshold++;
+  }
   /* Output activity blip every so often. */
   output_progress_msg_to_screen(simulation_run);
 

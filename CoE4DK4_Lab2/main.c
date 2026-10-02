@@ -59,6 +59,11 @@ int main(void)
   double ARRIVAL_RATES[] = {ARRIVAL_RATE_LIST, 0};
   unsigned random_seed;
   double arrival_rate;
+
+  double best_lambda = 0.0; 
+  long int sum_over_threshold;
+  long int sum_packets;
+
   int rate_index = 0;
   int j=0;
 
@@ -67,7 +72,7 @@ int main(void)
     perror("Could not create results.csv");
     return 1;
   }
-  fprintf(results_file, "arrival_rate,seed,mean_delay_ms\n");
+  fprintf(results_file, "arrival_rate,seed,mean_delay_ms,p_delay_over_20ms\n");
   fclose(results_file);
 
   /* 
@@ -76,6 +81,8 @@ int main(void)
    */
 
   while ((arrival_rate = ARRIVAL_RATES[rate_index++]) != 0) {
+    sum_over_threshold = 0;
+    sum_packets = 0;
     j = 0;
     while ((random_seed = RANDOM_SEEDS[j++]) != 0) {
 
@@ -94,6 +101,7 @@ int main(void)
     data.blip_counter = 0;
     data.arrival_count = 0;
     data.number_of_packets_processed = 0;
+    data.packets_over_threshold = 0;
     data.accumulated_delay = 0.0;
     data.arrival_rate = arrival_rate;
     data.random_seed = random_seed;
@@ -129,11 +137,18 @@ int main(void)
     /*
      * Output results and clean up after ourselves.
      */
+    sum_over_threshold += data.packets_over_threshold;
+    sum_packets += data.number_of_packets_processed;
 
     output_results(simulation_run);
     cleanup_memory(simulation_run);
     }
+    if ((double) sum_over_threshold / (double) sum_packets < 0.02) {
+      best_lambda = arrival_rate;
+    }
   }
+
+  printf("\nMax lambda with P(delay > 20 msec) < 2%% : %.0f packets/sec\n",best_lambda);
 
   getchar();   /* Pause before finishing. */
   return 0;

@@ -73,6 +73,7 @@ void
 output_results(Simulation_Run_Ptr simulation_run)
 {
   double xmtted_fraction;
+  double p_over; // % over required mean delay
   Simulation_Run_Data_Ptr data;
 
   data = (Simulation_Run_Data_Ptr) simulation_run_data(simulation_run);
@@ -87,18 +88,28 @@ output_results(Simulation_Run_Ptr simulation_run)
   printf("Transmitted packet count  = %ld (Service Fraction = %.5f)\n",
 	 data->number_of_packets_processed, xmtted_fraction);
 
-  printf("Arrival rate = %.3f packets/second \n", data->arrival_rate);
+   printf("Arrival rate = %.3f packets/second \n", data->arrival_rate);
 
-  printf("Mean Delay (msec) = %.2f \n",
-	 1e3*data->accumulated_delay/data->number_of_packets_processed);
-
-  FILE *results_file = fopen("results.csv", "a");
-  if (results_file != NULL) {
-    fprintf(results_file, "%.3f,%u,%.9f\n",
-            data->arrival_rate,
-            data->random_seed,
-            1e3 * data->accumulated_delay / data->number_of_packets_processed);
-    fclose(results_file);
+   printf("Mean Delay (msec) = %.2f \n",
+    1e3*data->accumulated_delay/data->number_of_packets_processed);
+ 
+   /* The quantity the lab actually asks for: the tail probability. */
+   p_over = (double) data->packets_over_threshold /
+     (double) data->number_of_packets_processed;
+ 
+   printf("P(delay > 20 msec) = %.4f%%  (%ld of %ld packets)\n",
+    100.0 * p_over,
+    data->packets_over_threshold,
+    data->number_of_packets_processed);
+ 
+   FILE *results_file = fopen("results.csv", "a");
+   if (results_file != NULL) {
+     fprintf(results_file, "%.3f,%u,%.9f,%.8f\n",
+             data->arrival_rate,
+             data->random_seed,
+             1e3 * data->accumulated_delay / data->number_of_packets_processed,
+             p_over);
+     fclose(results_file);
   }
 
   printf("\n");

@@ -40,6 +40,7 @@ typedef struct _simulation_run_data_
   long int blip_counter;
   long int arrival_count;
   long int number_of_packets_processed;
+  long int packets_over_threshold;
   double accumulated_delay;
   double arrival_rate;
   unsigned random_seed;
